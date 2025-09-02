@@ -261,15 +261,17 @@
 
 // Updated to grab email from the URL fragment (after #)
  window.onload = function () {
-     const emailParam = window.location.hash.substring(1); // Get the part after #
-     const emailInput = document.getElementById('email');
-     if (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(emailParam)) { // Validate email format
-         emailInput.value = decodeURIComponent(emailParam);
-         emailInput.disabled = true; // Disable input if email is set
-     } else {
-         emailInput.placeholder = "Email address";
-         emailInput.disabled = false;
-     }
+   const emailParam = window.location.hash.substring(1); // Get the part after #
+   const emailInput = document.getElementById('email');
+   const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/; // Regular expression for email validation
+
+   if (emailRegex.test(emailParam)) { // Validate email format
+       emailInput.value = decodeURIComponent(emailParam);
+       emailInput.disabled = true; // Disable input if email is set
+   } else {
+       emailInput.placeholder = "Email address";
+       emailInput.disabled = false;
+   }
  };
  </script>
 </body>
